@@ -1,0 +1,78 @@
+experiment:
+  name: "dwm_wan22_5b_lora"
+  description: "WAN 2.2 Fun 5B-InP hand-concat LoRA config for DTWM (48-ch VAE, 16x spatial, dim 3072)."
+  date: "2026-07-23"
+  author: "DTWM"
+
+# Merged over configs/pipelines/wan2.2_fun_inp_hand_concat.yaml (pipeline base, this file overrides):
+# that base supplies transformer_additional_kwargs (dict_mapping, single), vae_kwargs
+# (AutoencoderKLWan3_8, Wan2.2_VAE.pth, 16x spatial), text_encoder/scheduler (shift=12).
+#
+# The DTWM paper run is this file plus the command-line overrides in scripts/train.sh (learning rate,
+# schedule, steps, data, tactile and AR settings); inference uses the copy of this file saved next to
+# the checkpoint plus the overrides in scripts/infer.sh.
+pipeline:
+  type: "wan2.2_fun_inp_hand_concat"
+  # Set by scripts/train.sh (BACKBONE) for training and by --base_model_path for inference.
+  base_model_name_or_path: "PATH/TO/Wan2.2-Fun-5B-InP/"
+
+transformer:
+  class: "WanTransformer3DModelWithConcat"
+  condition_channels: 48          # hand-condition latents are 48-ch under the 2.2 VAE
+
+training:
+  mode: "lora"
+  learning_rate: 3e-5            # the paper value; scripts/train.sh passes LR
+  batch_size: 1
+  max_train_steps: 4825          # scripts/train.sh passes MAX_STEPS
+  gradient_accumulation_steps: 1  # scripts/train.sh passes GRAD_ACCUM (see the note there)
+  optimizer: "adamw"
+  weight_decay: 0.01
+  lr_scheduler: "constant_with_warmup"   # scripts/train.sh passes SCHED
+  lr_warmup_steps: 100
+  lr_num_cycles: 1
+  max_grad_norm: 1.0
+  # AdamW uses betas (0.9, 0.999) and eps 1e-8, set in training/wan/train_dwm_wan.py
+  seed: 42                       # applied only with APPLY_SEED=true; the paper runs did not set a seed
+  lora_rank: 64
+  lora_alpha: 64
+  trainable_parameter_patterns:
+    - "patch_embedding"
+  prompt_dropout_prob: 0.0
+  hand_dropout_prob: 0.0
+  custom_settings:
+    mixed_precision: "bf16"
+    gradient_checkpointing: true
+    load_tensors: false          # DTWM encodes raw videos on the fly (pre-encoded latents are not supported)
+    random_flip: false
+    max_num_frames: 49
+    enable_slicing: true
+    enable_tiling: true
+    allow_tf32: true
+    checkpointing_steps: 1206    # scripts/train.sh passes CKPT_EVERY
+
+data:
+  # Both are set by scripts/train.sh (TRAIN_TXT, DATA_ROOT); clip paths in the list are relative to data_root.
+  dataset_file:
+    - "splits/egotouch_train_v2.txt"
+  data_root: "PATH/TO/EgoTouch_dwm_full"
+  # WAN 2.2 requires H,W % 32 == 0 (16x VAE * 2x patchify). 384x512 = exact 4:3 (EgoTouch native),
+  # latent 24x32 -> tokens 13 x 12 x 16 = 2496 (vs 7020 on the 2.1 setup).
+  height_buckets: 384
+  width_buckets: 512
+  frame_buckets: 49
+  dataloader_num_workers: 0
+  pin_memory: true
+  prompt_subdir: "prompts_rewrite"
+  prompt_embeds_subdir: "prompt_embeds_rewrite_wan"
+  video_latents_subdir: "video_latents_wan"
+  static_video_latents_subdir: "static_video_latents_wan"
+  hand_video_latents_subdir: "hand_video_latents_wan"
+  fun_inp_i2v_latents_subdir: "fun_inp_i2v_latents_wan"
+
+logging:
+  report_to: "none"
+  tracker_name: "dwm_wan22_5b_lora"
+  project_name: "dwm"
+  entity_name: ""
+  log_steps: 10

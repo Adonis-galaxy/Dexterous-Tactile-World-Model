@@ -1,0 +1,35 @@
+# DTWM: Python 3.10. Versions are those of the environment the paper runs used.
+#
+# Install PyTorch first, with the CUDA build that matches your driver, e.g. (CUDA 11.8):
+#   pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cu118
+# then:
+#   pip install -r requirements.txt
+#
+# flash-attn / sageattention were NOT installed for the paper runs; the scripts force the PyTorch SDPA
+# attention path (VIDEOX_ATTENTION_TYPE=TORCH_SDPA) so results do not depend on them.
+torch==2.6.0
+torchvision==0.21.0
+diffusers==0.34.0
+transformers==4.51.3
+tokenizers==0.21.1
+huggingface-hub==0.30.2
+accelerate==1.2.1
+deepspeed==0.19.2
+safetensors==0.8.0
+sentencepiece==0.2.1
+einops==0.8.2
+numpy==2.2.6
+opencv-python==4.9.0.80
+decord==0.6.0
+imageio==2.37.3
+imageio-ffmpeg==0.6.0
+av==17.1.0
+pillow==12.2.0
+PyYAML==6.0.3
+tqdm==4.68.4
+# evaluation (eval/)
+lpips==0.1.4
+scikit-image==0.25.2
+scipy==1.15.3
+# optional: the trainer imports wandb if present (tracking is disabled in batch mode)
+# wandb==0.28.0
