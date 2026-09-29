@@ -5,7 +5,7 @@
 
 <sup>1</sup>Yale University &nbsp; <sup>2</sup>Texas A&M University &nbsp; <sup>3</sup>University of California, Los Angeles &nbsp; <sup>4</sup>University of Washington
 
-[Project page](https://adonis-galaxy.github.io/dtwm-project-page/) · Paper (coming soon)
+[Paper (arXiv)](https://arxiv.org/abs/2609.34286) · [Project page](https://adonis-galaxy.github.io/dtwm-project-page/)
 
 DTWM predicts future egocentric human manipulation videos with whole-hand touch. It conditions a pretrained video
 diffusion transformer (Wan2.2-Fun-5B-InP) on each hand's tactile reading, added to the video tokens at that hand's
@@ -101,7 +101,7 @@ This code is released under the Apache License 2.0 (see `LICENSE` and `NOTICE`).
   title   = {Dexterous Tactile World Model},
   author  = {Zeng, Ziyao and Sun, Xiatao and Wang, Hao and Pan, Yueyang and Yu, Zhengxiang
              and Yang, Fengyu and Liu, Tianyu and Fan, Zhiwen and Rakita, Daniel},
-  journal = {arXiv preprint},
+  journal = {arXiv preprint arXiv:2609.34286},
   year    = {2026}
 }
 ```
